@@ -3,52 +3,57 @@ const puntuacion = document.querySelector(".puntuacion");
 
 let posicionDinosaurio = 200;
 let intervaloSalto;
+let intervaloDescenso;
+let intervaloMovimientoCactus;
 
-function salto(evento) {
-  clearInterval(intervaloSalto);
-  let alturaSalto = 100;
+function tocarPantalla(evento) {
+  evento.preventDefault();
+  let posicionY = evento.touches[0].clientY;
+  let alturaPantalla = window.innerHeight;
+  let posicionDinosaurio = alturaPantalla - posicionY - 100;
 
-  if (evento.type === "click") {
-    posicionDinosaurio += 50;
+  if (posicionDinosaurio >= 50) {
+    dinosaurio.style.bottom = `${posicionDinosaurio}px`;
+  } else {
+    posicionDinosaurio = 50;
+    dinosaurio.style.bottom = `${posicionDinosaurio}px`;
   }
 
+  salto();
+}
+
+window.addEventListener("touchstart", tocarPantalla);
+window.addEventListener("touchmove", tocarPantalla);
+
+function salto() {
+  clearInterval(intervaloSalto);
+  clearInterval(intervaloDescenso);
+  let alturaSalto = 100;
   intervaloSalto = setInterval(() => {
     if (posicionDinosaurio < 200 + alturaSalto) {
       posicionDinosaurio += 5;
       dinosaurio.style.bottom = `${posicionDinosaurio}px`;
     } else {
       clearInterval(intervaloSalto);
-      intervaloSalto = setInterval(() => {
-        if (posicionDinosaurio > 200) {
+      intervaloDescenso = setInterval(() => {
+        if (posicionDinosaurio > 50) {
           posicionDinosaurio -= 5;
           dinosaurio.style.bottom = `${posicionDinosaurio}px`;
         } else {
-          clearInterval(intervaloSalto);
+          clearInterval(intervaloDescenso);
         }
       }, 20);
     }
   }, 20);
 }
 
-window.addEventListener("keydown", (evento) => {
-  if (evento.key === "ArrowUp" || evento.key === " ") {
-    salto(evento);
-  }
-});
-
-// Manejar eventos táctiles para dispositivos móviles
-window.addEventListener("touchstart", (evento) => {
-  salto(evento);
-});
-
 // Generar cactus estáticos al inicio del juego
 const cactusArray = document.querySelectorAll(".cactus");
-let posicionInicialCactus = 600;
 
 function moverCactus() {
   let velocidad = 10;
-  cactusArray.forEach((cactus, index) => {
-    let posicionCactus = posicionInicialCactus - (index * 150); // Ajustamos la posición inicial de cada cactus
+  cactusArray.forEach((cactus) => {
+    let posicionCactus = parseInt(cactus.style.left) || 600;
     posicionCactus -= velocidad;
     cactus.style.left = `${posicionCactus}px`;
 
@@ -66,34 +71,11 @@ function moverCactus() {
     }
 
     if (posicionCactus < -50) {
-      posicionCactus = posicionInicialCactus - (index * 150); // Reiniciamos la posición del cactus
+      posicionCactus = 600; 
       puntuacion.textContent++;
     }
   });
 }
 
 // Ejecutar el movimiento de los cactus continuamente
-let intervaloMovimientoCactus = setInterval(moverCactus, 50);
-
-// Descenso automático del dinosaurio
-function descenso() {
-  clearInterval(intervaloSalto);
-  intervaloSalto = setInterval(() => {
-    if (posicionDinosaurio > 50) {
-      posicionDinosaurio -= 5;
-      dinosaurio.style.bottom = `${posicionDinosaurio}px`;
-    } else {
-      clearInterval(intervaloSalto);
-    }
-  }, 20);
-}
-
-// Agregar evento de clic para el mouse
-dinosaurio.addEventListener("click", salto);
-
-// Descenso automático al levantar la tecla de salto
-window.addEventListener("keyup", (evento) => {
-  if (evento.key === "ArrowUp" || evento.key === " ") {
-    descenso();
-  }
-});
+intervaloMovimientoCactus = setInterval(moverCactus, 50);
