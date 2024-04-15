@@ -1,90 +1,17 @@
 const dinosaurio = document.querySelector(".dinosaurio");
-const suelo = document.querySelector(".suelo");
-const cactus = document.querySelector(".cactus");
-const puntuacion = document.querySelector(".puntuacion");
-
-let velocidad = 10;
-let posicionDinosaurio = 200;
-let posicionCactus = 300;
-let intervaloSalto;
-let intervaloMovimientoCactus;
-
-function salto() {
-  clearInterval(intervaloSalto);
-  let alturaSalto = 100;
-  intervaloSalto = setInterval(() => {
-    if (posicionDinosaurio < 200 + alturaSalto) {
-      posicionDinosaurio += 5;
-      dinosaurio.style.bottom = ${posicionDinosaurio}px;
-    } else {
-      clearInterval(intervaloSalto);
-      intervaloSalto = setInterval(() => {
-        if (posicionDinosaurio > 200) {
-          posicionDinosaurio -= 5;
-          dinosaurio.style.bottom = ${posicionDinosaurio}px;
-        } else {
-          clearInterval(intervaloSalto);
-        }
-      }, 20);
-    }
-  }, 20);
-}
-
-function descenso() {
-  clearInterval(intervaloSalto);
-  intervaloSalto = setInterval(() => {
-    if (posicionDinosaurio > 50) {
-      posicionDinosaurio -= 5;
-      dinosaurio.style.bottom = ${posicionDinosaurio}px;
-    } else {
-      clearInterval(intervaloSalto);
-    }
-  }, 20);
-}
-
-window.addEventListener("keydown", (evento) => {
-  if (evento.key === "ArrowUp" || evento.key === " ") {
-    salto();
-  }
-});
-
-window.addEventListener("keyup", (evento) => {
-  if (evento.key === "ArrowUp" || evento.key === " ") {
-    descenso();
-  }
-});
-
-intervaloMovimientoCactus = setInterval(() => {
-  posicionCactus -= velocidad;
-  if (posicionCactus < -50) {
-    posicionCactus = 300;
-    puntuacion.textContent++;
-  }
-  cactus.style.left = ${posicionCactus}px;
-
-  let dinosaurioRect = dinosaurio.getBoundingClientRect();
-  let cactusRect = cactus.getBoundingClientRect();
-
-  if (
-    dinosaurioRect.right > cactusRect.left &&
-    dinosaurioRect.left < cactusRect.right &&
-    dinosaurioRect.bottom > cactusRect.top &&
-    dinosaurioRect.top < cactusRect.bottom
-  ) {
-    clearInterval(intervaloMovimientoCactus);
-    alert("¡Game Over!");
-  }
-}, 50);
-
-const dinosaurio = document.querySelector(".dinosaurio");
 const puntuacion = document.querySelector(".puntuacion");
 
 let posicionDinosaurio = 200;
 let intervaloSalto;
 
-function salto() {
+function salto(evento) {
   clearInterval(intervaloSalto);
   let alturaSalto = 100;
+
+  if (evento.type === "click") {
+    posicionDinosaurio += 50;
+  }
+
   intervaloSalto = setInterval(() => {
     if (posicionDinosaurio < 200 + alturaSalto) {
       posicionDinosaurio += 5;
@@ -105,61 +32,68 @@ function salto() {
 
 window.addEventListener("keydown", (evento) => {
   if (evento.key === "ArrowUp" || evento.key === " ") {
-    salto();
+    salto(evento);
   }
 });
 
 // Manejar eventos táctiles para dispositivos móviles
-window.addEventListener("touchstart", () => {
-  salto();
+window.addEventListener("touchstart", (evento) => {
+  salto(evento);
 });
 
 // Generar cactus estáticos al inicio del juego
 const cactusArray = document.querySelectorAll(".cactus");
-let leftPosition = 100;
-cactusArray.forEach((cactus) => {
-  cactus.style.left = `${leftPosition}%`;
-  leftPosition += 20; // Espacio entre cactus
+let posicionInicialCactus = 600;
+
+function moverCactus() {
+  let velocidad = 10;
+  cactusArray.forEach((cactus, index) => {
+    let posicionCactus = posicionInicialCactus - (index * 150); // Ajustamos la posición inicial de cada cactus
+    posicionCactus -= velocidad;
+    cactus.style.left = `${posicionCactus}px`;
+
+    let dinosaurioRect = dinosaurio.getBoundingClientRect();
+    let cactusRect = cactus.getBoundingClientRect();
+
+    if (
+      dinosaurioRect.right > cactusRect.left &&
+      dinosaurioRect.left < cactusRect.right &&
+      dinosaurioRect.bottom > cactusRect.top &&
+      dinosaurioRect.top < cactusRect.bottom
+    ) {
+      clearInterval(intervaloMovimientoCactus);
+      alert("¡Game Over!");
+    }
+
+    if (posicionCactus < -50) {
+      posicionCactus = posicionInicialCactus - (index * 150); // Reiniciamos la posición del cactus
+      puntuacion.textContent++;
+    }
+  });
+}
+
+// Ejecutar el movimiento de los cactus continuamente
+let intervaloMovimientoCactus = setInterval(moverCactus, 50);
+
+// Descenso automático del dinosaurio
+function descenso() {
+  clearInterval(intervaloSalto);
+  intervaloSalto = setInterval(() => {
+    if (posicionDinosaurio > 50) {
+      posicionDinosaurio -= 5;
+      dinosaurio.style.bottom = `${posicionDinosaurio}px`;
+    } else {
+      clearInterval(intervaloSalto);
+    }
+  }, 20);
+}
+
+// Agregar evento de clic para el mouse
+dinosaurio.addEventListener("click", salto);
+
+// Descenso automático al levantar la tecla de salto
+window.addEventListener("keyup", (evento) => {
+  if (evento.key === "ArrowUp" || evento.key === " ") {
+    descenso();
+  }
 });
-
-
-// const dinosaurio = document.querySelector(".dinosaurio");
-// const puntuacion = document.querySelector(".puntuacion");
-
-// let posicionDinosaurio = 200;
-// let intervaloSalto;
-
-// function salto() {
-//   clearInterval(intervaloSalto);
-//   let alturaSalto = 100;
-//   intervaloSalto = setInterval(() => {
-//     if (posicionDinosaurio < 200 + alturaSalto) {
-//       posicionDinosaurio += 5;
-//       dinosaurio.style.bottom = `${posicionDinosaurio}px`;
-//     } else {
-//       clearInterval(intervaloSalto);
-//       intervaloSalto = setInterval(() => {
-//         if (posicionDinosaurio > 200) {
-//           posicionDinosaurio -= 5;
-//           dinosaurio.style.bottom = `${posicionDinosaurio}px`;
-//         } else {
-//           clearInterval(intervaloSalto);
-//         }
-//       }, 20);
-//     }
-//   }, 20);
-// }
-
-// window.addEventListener("keydown", (evento) => {
-//   if (evento.key === "ArrowUp" || evento.key === " ") {
-//     salto();
-//   }
-// });
-
-// // Generar cactus estáticos al inicio del juego
-// const cactusArray = document.querySelectorAll(".cactus");
-// let leftPosition = 100;
-// cactusArray.forEach((cactus) => {
-//   cactus.style.left = `${leftPosition}%`;
-//   leftPosition += 20; // Espacio entre cactus
-// });
