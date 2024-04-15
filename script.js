@@ -1,4 +1,82 @@
 const dinosaurio = document.querySelector(".dinosaurio");
+const suelo = document.querySelector(".suelo");
+const cactus = document.querySelector(".cactus");
+const puntuacion = document.querySelector(".puntuacion");
+
+let velocidad = 10;
+let posicionDinosaurio = 200;
+let posicionCactus = 300;
+let intervaloSalto;
+let intervaloMovimientoCactus;
+
+function salto() {
+  clearInterval(intervaloSalto);
+  let alturaSalto = 100;
+  intervaloSalto = setInterval(() => {
+    if (posicionDinosaurio < 200 + alturaSalto) {
+      posicionDinosaurio += 5;
+      dinosaurio.style.bottom = ${posicionDinosaurio}px;
+    } else {
+      clearInterval(intervaloSalto);
+      intervaloSalto = setInterval(() => {
+        if (posicionDinosaurio > 200) {
+          posicionDinosaurio -= 5;
+          dinosaurio.style.bottom = ${posicionDinosaurio}px;
+        } else {
+          clearInterval(intervaloSalto);
+        }
+      }, 20);
+    }
+  }, 20);
+}
+
+function descenso() {
+  clearInterval(intervaloSalto);
+  intervaloSalto = setInterval(() => {
+    if (posicionDinosaurio > 50) {
+      posicionDinosaurio -= 5;
+      dinosaurio.style.bottom = ${posicionDinosaurio}px;
+    } else {
+      clearInterval(intervaloSalto);
+    }
+  }, 20);
+}
+
+window.addEventListener("keydown", (evento) => {
+  if (evento.key === "ArrowUp" || evento.key === " ") {
+    salto();
+  }
+});
+
+window.addEventListener("keyup", (evento) => {
+  if (evento.key === "ArrowUp" || evento.key === " ") {
+    descenso();
+  }
+});
+
+intervaloMovimientoCactus = setInterval(() => {
+  posicionCactus -= velocidad;
+  if (posicionCactus < -50) {
+    posicionCactus = 300;
+    puntuacion.textContent++;
+  }
+  cactus.style.left = ${posicionCactus}px;
+
+  let dinosaurioRect = dinosaurio.getBoundingClientRect();
+  let cactusRect = cactus.getBoundingClientRect();
+
+  if (
+    dinosaurioRect.right > cactusRect.left &&
+    dinosaurioRect.left < cactusRect.right &&
+    dinosaurioRect.bottom > cactusRect.top &&
+    dinosaurioRect.top < cactusRect.bottom
+  ) {
+    clearInterval(intervaloMovimientoCactus);
+    alert("¡Game Over!");
+  }
+}, 50);
+
+const dinosaurio = document.querySelector(".dinosaurio");
 const puntuacion = document.querySelector(".puntuacion");
 
 let posicionDinosaurio = 200;
